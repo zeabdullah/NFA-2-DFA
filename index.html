@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+</head>
+
+<body>
+  <div id="app">
+    <h1>Hello world!</h1>
+
+    <canvas id="canvas" width="1100" height="700"></canvas>
+
+    <form id="new-state-form">
+      <div>
+        <label for="state-id">
+          New State Name:
+          <input type="text" id="new-state-input" value="" required>
+        </label>
+        <input type="submit" value="New State" class="new-state">
+      </div>
+    </form>
+
+    <form id="states-form">
+      <table class="nfa-table">
+        <thead class="thead">
+          <th>ID</th>
+          <th>0</th>
+          <th>1</th>
+          <th>Is Final</th>
+          <th>Starting State</th>
+        </thead>
+        <tbody class="all-states">
+          <!-- <tr class="state-row">
+            <td class="state-id">state.id</td>
+            <td class="state-transition">q1</td>
+            <td class="state-transition">q2</td>
+            <td class="state-is-final"><input type="checkbox" checked /></td>
+            <td class="state-is-starting"><input type="radio" name="is-starting" /></td>
+          </tr> -->
+        </tbody>
+      </table>
+    </form>
+
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>

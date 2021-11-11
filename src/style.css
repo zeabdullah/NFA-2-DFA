@@ -1,0 +1,26 @@
+#app {
+   font-family: Avenir, Helvetica, Arial, sans-serif;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+   text-align: center;
+   color: #2c3e50;
+   margin-top: 60px;
+}
+
+#canvas {
+   background-color: rgb(236, 236, 236);
+   border: 3px solid rgba(0, 0, 0, 0.753);
+   border-radius: 6px;
+}
+
+.nfa-table {
+   background-color: rgb(243, 161, 136);
+}
+
+table,
+th,
+td {
+   padding: 0.3rem 0.5rem;
+   border-collapse: collapse;
+   border: 2px solid black;
+}
