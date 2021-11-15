@@ -11,8 +11,13 @@ interface FSAInterface {
    renameState(oldId: String, newId: string): State;
    findState(id: string): State | undefined;
 
+   setStartingState(id: string): any; // idk yet
+
    addDestinationToState(stateId: string, newDestination: Destination): boolean;
-   dropDestinationFromState(stateId: string, destinationToDrop: Destination): Destination;
+   dropDestinationFromState(
+      stateId: string,
+      destinationToDrop: Destination
+   ): Destination;
 
    // The Big Mann
    convertToDFA(): FSA;
@@ -22,7 +27,7 @@ interface FSAInterface2 {
    states: Map<string, State>;
    startingStateId?: string;
    finalStates: string[] | [];
-   alphabet: string[] | [];
+   alphabet: Map<string, string>;
 
    addState(newState: State): boolean;
    removeState(id: string): State | undefined;
@@ -30,12 +35,70 @@ interface FSAInterface2 {
    findState(id: string): State | undefined;
 
    addDestinationToState(stateId: string, newDestination: Destination): boolean;
-   removeDestinationFromState(stateId: string, destinationToDrop: Destination): Destination;
+   removeDestinationFromState(
+      stateId: string,
+      destinationToDrop: Destination
+   ): Destination;
 
    // The Big Mann
    convertToDFA(): FSA;
 }
 
+class FSA2 implements FSAInterface2 {
+   states: Map<string, State>;
+   startingStateId?: string;
+   finalStates: string[] | [];
+   alphabet: Map<string, string>;
+
+   constructor(
+      states = new Map<string, State>(),
+      startingStateId?: string,
+      finalStates: string[] = [],
+      alphabet = new Map<string, string>()
+   ) {
+      this.states = states;
+      this.startingStateId = startingStateId;
+      this.finalStates = finalStates;
+      this.alphabet = alphabet;
+   }
+
+   addState({ id, isFinal = false, destinations = [] }: State): boolean {
+      const newState = { id, isFinal, destinations } as State;
+
+      if (this.states.length === 0) {
+         this.startingStateId = id;
+         this.states = [newState];
+         return true;
+      }
+
+      if (this.states.get(id)) {
+         alert(`Duplicate state '${id}' already found. new state NOT added.`);
+         return false;
+      }
+      this.states.set(id, newState);
+
+      if (newState.isFinal) {
+         // push new state to this.finalStates
+         this.finalStates = [...this.finalStates, newState.id];
+      }
+
+      newState.destinations.forEach(destination => {
+         if (!this.alphabet.get(destination.input)) {
+            this.alphabet.set(destination.input, destination.input);
+         }
+      });
+      // this.alphabet.forEach((input) => {
+      //    newState.destinations.forEach((destination) => {
+      //       if (input !== destination.input) {
+      //          this.alphabet = [...this.alphabet, input];
+      //          return;
+      //       }
+      //    });
+      // });
+
+      return true;
+   }
+}
 
 export default class FSA implements FSAInterface {
    // Properties
@@ -91,6 +154,11 @@ export default class FSA implements FSAInterface {
       return true;
    }
 
+   // find state by its ID
+   findState(id: string): State | undefined {
+      return this.states.find((state: State) => state.id === id);
+   }
+
    addDestinationToState(stateId: string, newDestination: Destination): boolean {
       // if the state we want to mutate doesn't exist, don't do anything.
       if (!this.findState(stateId)) return false;
@@ -119,17 +187,11 @@ export default class FSA implements FSAInterface {
       );
       return false;
    }
-
-   // find state by its ID
-   findState(id: string): State | undefined {
-      return this.states.find((state: State) => state.id === id);
-   }
-
    // returns result DFA from this NFA
    convertToDFA(): FSA {
-      // - clone current FSA, modifying only the clone ------ const copy = _.cloneDeep(this)
+      // - create new FSA, modifying only the new one
       // - merge destinations of same input to a single object
-      // - 
+      // -
       // ...
       // - return it
       // NOTE: i would either reassign my nfa to a dfa, or create a new variable referencing the new dfa

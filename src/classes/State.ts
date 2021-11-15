@@ -3,12 +3,11 @@ export interface Destination {
    id: string;
 }
 
-
 interface StateInterface {
    id: string;
    isFinal: boolean;
    destinations: Destination[] | [];
-   
+
    renameId(newId: string): State;
    setIsFinal(val: boolean): State;
 
@@ -26,7 +25,7 @@ export default class State {
    constructor(id: string, isFinal = false, destinations: Destination[] = []) {
       this.id = id;
       this.isFinal = isFinal;
-      this.destinations = destinations.map(destination => destination);
+      this.destinations = destinations;
    }
 
    // Methods
