@@ -1,6 +1,43 @@
 import State, { Destination } from './State';
 
-export default class FSA {
+interface FSAInterface {
+   states: State[] | []; // was thinking of type: Map<string, State>;
+   startingStateId?: string;
+   finalStates: string[] | [];
+   alphabet: string[] | [];
+
+   addState(newState: State): boolean;
+   dropState(id: string): State | undefined;
+   renameState(oldId: String, newId: string): State;
+   findState(id: string): State | undefined;
+
+   addDestinationToState(stateId: string, newDestination: Destination): boolean;
+   dropDestinationFromState(stateId: string, destinationToDrop: Destination): Destination;
+
+   // The Big Mann
+   convertToDFA(): FSA;
+}
+
+interface FSAInterface2 {
+   states: Map<string, State>;
+   startingStateId?: string;
+   finalStates: string[] | [];
+   alphabet: string[] | [];
+
+   addState(newState: State): boolean;
+   removeState(id: string): State | undefined;
+   renameState(oldId: String, newId: string): State;
+   findState(id: string): State | undefined;
+
+   addDestinationToState(stateId: string, newDestination: Destination): boolean;
+   removeDestinationFromState(stateId: string, destinationToDrop: Destination): Destination;
+
+   // The Big Mann
+   convertToDFA(): FSA;
+}
+
+
+export default class FSA implements FSAInterface {
    // Properties
    states: State[] | []; // was thinking of type: Map<string, State>;
    startingStateId?: string;
@@ -88,10 +125,14 @@ export default class FSA {
       return this.states.find((state: State) => state.id === id);
    }
 
-   // convert NFA to DFA
-   convertToDFA(): void {
-      // 1. merge destinations of same input to a single object
-      // 2.
-      // TODO implementation...
+   // returns result DFA from this NFA
+   convertToDFA(): FSA {
+      // - clone current FSA, modifying only the clone ------ const copy = _.cloneDeep(this)
+      // - merge destinations of same input to a single object
+      // - 
+      // ...
+      // - return it
+      // NOTE: i would either reassign my nfa to a dfa, or create a new variable referencing the new dfa
+      // TODO: implementation...
    }
 }

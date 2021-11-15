@@ -3,6 +3,19 @@ export interface Destination {
    id: string;
 }
 
+
+interface StateInterface {
+   id: string;
+   isFinal: boolean;
+   destinations: Destination[] | [];
+   
+   renameId(newId: string): State;
+   setIsFinal(val: boolean): State;
+
+   addDestination(newDestination: Destination): boolean;
+   removeDestination(destinationToRemove: Destination): Destination;
+}
+
 export default class State {
    // Properties
    id: string;
@@ -13,11 +26,7 @@ export default class State {
    constructor(id: string, isFinal = false, destinations: Destination[] = []) {
       this.id = id;
       this.isFinal = isFinal;
-      this.destinations = [];
-
-      destinations.forEach(destination => {
-         this.addDestination(destination);
-      });
+      this.destinations = destinations.map(destination => destination);
    }
 
    // Methods
