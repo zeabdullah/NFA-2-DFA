@@ -19,7 +19,7 @@ interface FSAInterface {
    unionizeStateDestinations(stateId: string): State;
 }
 
-class FSA implements FSAInterface {
+export default class FSA implements FSAInterface {
    states: Map<string, State>;
    startingStateId?: string;
    finalStates: string[];
@@ -40,8 +40,9 @@ class FSA implements FSAInterface {
    // -------- methods ---------
    //
    addState({ id, isFinal = false, destinations = [] }: State): boolean {
-      const newState = { id, isFinal, destinations } as State;
+      const newState = new State(id, isFinal, destinations);
 
+      // exit if state already exists
       if (this.findState(id)) {
          alert(`Duplicate state '${id}' already found. new state NOT added.`);
          return false;
@@ -49,14 +50,15 @@ class FSA implements FSAInterface {
 
       this.states.set(id, newState);
 
+      // if state size is 1, it means only newState exists; hence, make it starting
       if (this.states.size === 1) {
          this.startingStateId = id;
          return true;
       }
 
+      // if new state is final
       if (newState.isFinal) {
-         // push new state to this.finalStates
-         this.finalStates = [...this.finalStates, newState.id];
+         this.finalStates = this.finalStates.concat(newState.id);
       }
 
       // check if any of the target destinations are new,
@@ -75,23 +77,28 @@ class FSA implements FSAInterface {
    }
 
    addDestinationToState(stateId: string, newDestination: Destination): boolean {
-      // if the state we want to mutate doesn't exist, don't do anything.
-      if (!this.findState(stateId)) return false;
+      // if the state we want to mutate doesn't exist, exit.
+      const stateToMutate = this.findState(stateId);
+      if (!stateToMutate) return false;
 
       const { input, targetId: targetId } = newDestination;
 
       const chosenState = this.findState(targetId);
-
       // if chosen state doesn't exist, create new state with the targetId
-      if (!chosenState) return this.addState(new State(targetId)); // will always return true
+      if (!chosenState) {
+         stateToMutate.addDestination(newDestination);
+         this.alphabet.set(newDestination.input, newDestination.input);
+         return this.addState(new State(targetId));
+      } // will always return true
 
-      const alreadyExists = chosenState.destinations.find(
+      const alreadyExists = stateToMutate.destinations.find(
          currDestination =>
             currDestination.input === input && currDestination.targetId === targetId
       );
 
       if (!alreadyExists) {
-         chosenState.destinations = [...chosenState.destinations, newDestination];
+         stateToMutate.destinations = stateToMutate.destinations.concat(newDestination);
+         this.alphabet.set(newDestination.input, newDestination.input);
          return true;
       }
 
@@ -110,12 +117,17 @@ class FSA implements FSAInterface {
 
       this.alphabet.forEach(inputStr => {
          const dest: Destination = { input: inputStr, targetId: '' };
-         newDestinations = [...newDestinations, dest];
+         newDestinations = newDestinations.concat(dest);
       });
 
       // assuming we have all the destinations now,
       const oldState = this.findState(stateId) as State;
-      const newState = new State(stateId, oldState.isFinal, oldState.unionizeDestinations());
+      const newState = new State(
+         oldState.id,
+         oldState.isFinal,
+         oldState.unionizeDestinations()
+      );
+      // replace oldState of same id with newState
       this.states.set(stateId, newState);
 
       return newState;
@@ -123,33 +135,49 @@ class FSA implements FSAInterface {
 
    // converts NFA to DFA
    convertToDFA(): FSA {
-      // TODO: implementation...
-      // - create new FSA, modifying only the new one
-      const dfa = new FSA();
+      // if there isn't even a starting state, then DFA is empty; return the same FSA
+      if (!this.startingStateId) return this;
 
-      const oldStartingState = this.findState(this.startingStateId!) as State;
+      // TODO: implementation...
+
+      // create new FSA, with only the starting state of the old FSA
+      // we modify only the new one
+      const dfa: FSA = new FSA(undefined, this.startingStateId, undefined, this.alphabet);
+
+      const nfaStartingState = this.findState(this.startingStateId) as State;
 
       dfa.addState(
          new State(
-            oldStartingState.id,
-            oldStartingState.isFinal,
-            oldStartingState.destinations
+            nfaStartingState.id,
+            nfaStartingState.isFinal,
+            nfaStartingState.unionizeDestinations()
          )
       );
+
+      // 1. loop new FSA to find if each of the states' destinations' targetId is found
+      // 2. if not found, create new state with that not found id
 
       // dfa.states.get(this.startingStateId)?.destinations = unionizeDestinations(
       //    oldStartingState.destinations
       // );
 
+      // TODO: im stuck here...
+
+      dfa.states.forEach(state => {
+         /* for each (destination.targetId) {
+            if(!dfa.findState(destination.targetId)) {
+               const newState = new State(destination.targetId, false)
+               newState.destinations = getDestinationsOfConcatentatedIdState(q1q2)
+               newState.unionizeDestinations()
+            } 
+         }        
+         */
+      });
+
       // this.states.forEach(currState => {
       //    if (currState.id === dfa.startingStateId) return;
       //    dfa.addState(new State(currState.id))
       // });
-
-      // - merge destinations of same input to a single object
-      // -
-      // ...
-      // - return it
 
       return dfa;
    }
