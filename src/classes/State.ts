@@ -1,101 +1,91 @@
 export interface Destination {
-	input: string;
-	targetId: string;
+   input: string;
+   targetId: string;
 }
 
 interface StateInterface {
-	id: string;
-	isFinal: boolean;
-	destinations: Destination[];
+   id: string;
+   isFinal: boolean;
+   destinations: Destination[];
 
-	renameId(newId: string): State;
-	setIsFinal(val: boolean): State;
+   renameId(newId: string): State;
+   setIsFinal(val: boolean): State;
 
-	addDestination(newDestination: Destination): boolean;
-	removeDestination(destinationToRemove: Destination): void;
-	// unionizeDestinations(): Destination[];
+   addDestination(newDestination: Destination): boolean;
+   removeDestination(destinationToRemove: Destination): void;
+   unionizeDestinations(): Destination[];
 }
 
 export default class State implements StateInterface {
-	// Properties
-	id: string;
-	isFinal: boolean;
-	destinations: Destination[];
+   // Properties
+   id: string;
+   isFinal: boolean;
+   destinations: Destination[];
 
-	// Constructor(s)
-	constructor(id: string, isFinal = false, destinations: Destination[] = []) {
-		this.id = id;
-		this.isFinal = isFinal;
-		this.destinations = destinations;
-	}
+   // Constructor(s)
+   constructor(id: string, isFinal = false, destinations: Destination[] = []) {
+      this.id = id;
+      this.isFinal = isFinal;
+      this.destinations = destinations;
+   }
 
-	// Methods
-	renameId(newId: string): State {
-		this.id = newId;
-		return this;
-	}
+   // Methods
+   renameId(newId: string): State {
+      this.id = newId;
+      return this;
+   }
 
-	setIsFinal(newIsFinal: boolean): State {
-		this.isFinal = newIsFinal;
-		return this;
-	}
+   setIsFinal(newIsFinal: boolean): State {
+      this.isFinal = newIsFinal;
+      return this;
+   }
 
-	// add a destination to state node
-	addDestination(newDestination: Destination): boolean {
-		const { input, targetId } = newDestination;
+   // add a destination to state node
+   addDestination(newDestination: Destination): boolean {
+      if (!newDestination.input) {
+         if (!newDestination.targetId)
+            console.warn(`invalid target id. new destination NOT added`);
+         console.warn(`invalid input string. new destination NOT added`);
+         return false;
+      }
 
-		const alreadyExists = this.destinations.find(
-			currDestination =>
-				currDestination.input === input && currDestination.targetId === targetId
-		);
+      this.destinations = this.destinations.concat(newDestination);
+      return true;
+   }
 
-		// If destination already exists, exit...
-		if (alreadyExists) {
-			alert(
-				`Duplicate destination [${input}, ${targetId}] found. new destination NOT added.`
-			);
-			return false;
-		}
+   // remove destination from state node
+   removeDestination(destinationToRemove: Destination): void {
+      const { input, targetId } = destinationToRemove;
 
-		this.destinations = this.destinations.concat(newDestination);
-		return true;
-	}
+      this.destinations = this.destinations.filter(
+         currDestination =>
+            currDestination.input !== input || currDestination.targetId !== targetId
+      );
+   }
 
-	// remove destination from state node
-	removeDestination(destinationToRemove: Destination): void {
-		const { input, targetId } = destinationToRemove;
+   unionizeDestinations(): Destination[] {
+      let newDestinations: Destination[] = [];
 
-		this.destinations = this.destinations.filter(
-			currDestination =>
-				currDestination.input !== input || currDestination.targetId !== targetId
-		);
-	}
+      this.destinations.forEach(oldDest => {
+         const destIndex = newDestinations.findIndex(
+            newDest => oldDest.input === newDest.input
+         );
 
-	unionizeDestinations(): Destination[] {
-		// TODO: This implementation
+         // if oldDest has no commonality with any of the new existing destinations, push oldDest
+         if (destIndex === -1) {
+            newDestinations = newDestinations.concat(oldDest);
+            return;
+         }
 
-		let newDestinations: Destination[] = [];
+         // else, only modify the targetId to be concatenated with the next id (e.g: 1 => 'q1' BECOMES 1 => 'q1,q2')
+         if (newDestinations[destIndex])
+            newDestinations[destIndex] = {
+               ...newDestinations[destIndex], // input string never changes
+               targetId: `${newDestinations[destIndex].targetId}, ${oldDest.targetId}` // 'q1' becomes 'q1,q2'
+            };
+         else newDestinations[destIndex] = oldDest;
+      });
 
-		this.destinations.forEach(oldDest => {
-			const destIndex = newDestinations.findIndex(
-				newDest => oldDest.input === newDest.input
-			);
-
-			// if oldDest has no commonality with any of the new existing destinations, push oldDest
-			if (destIndex === -1) {
-				newDestinations = newDestinations.concat(oldDest);
-				return;
-			}
-
-			// else, only modify the targetId to be concatenated with the next id (e.g: 1 => 'q1' BECOMES 1 => 'q1,q2')
-			if (newDestinations[destIndex])
-				newDestinations[destIndex] = {
-					...newDestinations[destIndex], // input string never changes
-					targetId: `${newDestinations[destIndex].targetId}, ${oldDest.targetId}` // 'q1' becomes 'q1,q2'
-				};
-			else newDestinations[destIndex] = oldDest;
-		});
-
-		return newDestinations;
-	}
+      return newDestinations;
+   }
 }
