@@ -1,3 +1,4 @@
+import unionize from '../helpers/unionize';
 import State, { Destination } from './State';
 
 interface FSAInterface {
@@ -42,34 +43,33 @@ export default class FSA implements FSAInterface {
    // -------- methods ---------
    //
    addState({ id, isFinal = false, destinations = [] }: State): boolean {
-      const newState = new State(id, isFinal, destinations);
+      const makeFirstStateStarting = () => {
+         if (this.states.size === 1) this.startingStateId = id;
+      };
 
-      // exit if state already exists
+      const addNewInputStringToAlphabet = () => {
+         destinations.forEach(currDest => {
+            if (!this.alphabet.get(currDest.input)) {
+               this.alphabet.set(currDest.input, currDest.input);
+            }
+         });
+      };
+
+      // if state already exists, exit
       if (this.findState(id)) {
-         alert(`Duplicate state '${id}' already found. new state NOT added.`);
+         console.warn(`Duplicate state '${id}' already found. new state NOT added.`);
          return false;
       }
 
+      const newState = new State(id, isFinal, destinations);
       this.states.set(id, newState);
 
-      // if state size is 1, it means only newState exists; hence, make it starting
-      if (this.states.size === 1) {
-         this.startingStateId = id;
-         return true;
-      }
-
-      // if new state is final
-      if (newState.isFinal) {
-         this.finalStates = this.finalStates.concat(newState.id);
-      }
-
-      // check if any of the target destinations are new,
-      // so that we add it to the alphabet
-      newState.destinations.forEach(destination => {
-         if (!this.alphabet.get(destination.input)) {
-            this.alphabet.set(destination.input, destination.input);
-         }
-      });
+      // if new state is final, append it to finalStates array
+      if (isFinal) this.finalStates = this.finalStates.concat(id);
+      // if number of states is 1, it means only newState exists; hence, make it starting
+      makeFirstStateStarting();
+      // check if any of the target destinations are new, so that we add it to the alphabet
+      addNewInputStringToAlphabet();
 
       return true;
    }
@@ -125,15 +125,25 @@ export default class FSA implements FSAInterface {
    }
 
    unionizeStateDestinations(stateId: string): State {
-      let newDestinations: Destination[] = [];
-
       // step: combine all destinations from states sharing the id (id: 'q1,q2' means combine q1 destinations with q2 destinations)
 
       // TODO: know what to do with this.
-      this.alphabet.forEach(inputStr => {
-         const dest: Destination = { input: inputStr, targetId: '' };
-         newDestinations = newDestinations.concat(dest);
+      /*       const splitIds: string[] = stateId.split(',');
+      const splitStates: State[] = splitIds.map(id => {
+         const stateRef = this.findState(id);
+         return new State(id, stateRef?.isFinal, stateRef?.destinations);
       });
+      const combinedDestinations: Destination[] = splitStates.flatMap(
+         state => state.destinations
+      );
+      const unionizedDestinations = unionize(combinedDestinations);
+ */
+
+      // let newDestinations: Destination[] = [];
+      // this.alphabet.forEach(inputStr => {
+      //    const dest: Destination = { input: inputStr, targetId: '' };
+      //    newDestinations = newDestinations.concat(dest);
+      // });
 
       // assuming we have all the destinations now,
       const oldState = this.findState(stateId) as State;
@@ -148,6 +158,7 @@ export default class FSA implements FSAInterface {
       return newState;
    }
 
+   // FIXME: worked in mustafa's example, didnt work on a second example
    // converts NFA to DFA
    convertToDFA(): FSA {
       const getDestinationsOfconcattedState = (
@@ -173,8 +184,7 @@ export default class FSA implements FSAInterface {
       if (!this.startingStateId) return this;
 
       // create new FSA, with only the starting state of the old FSA
-      // we modify only the new one
-      const dfa: FSA = new FSA(undefined, this.startingStateId, undefined, this.alphabet);
+      const dfa = new FSA(undefined, this.startingStateId, undefined, this.alphabet);
 
       const nfaStartingState = this.findState(this.startingStateId) as State;
 
@@ -187,28 +197,21 @@ export default class FSA implements FSAInterface {
       );
 
       // 1. loop new FSA to find if each of the states' destinations' targetId is found
-      // 2. if not found, create new state with that not found id
-
-      // TODO: 50% working, still added 'q2' after 'q1, q2'
+      // 2. if not found, create new state with that id
       dfa.states.forEach(state => {
-         state.destinations.forEach(dest => {
-            if (!dfa.findState(dest.targetId)) {
-               // TODO: ☝️ condition is the problem; maybe 'dfa.findIfPartOfStateId()'
+         state.destinations.forEach(currDest => {
+            if (!dfa.findState(currDest.targetId)) {
+               const [combinedDests, hasFinal] = getDestinationsOfconcattedState(currDest);
 
-               const [combinedDests, hasFinal]: [Destination[], boolean] =
-                  getDestinationsOfconcattedState(dest);
-
-               const newState = new State(dest.targetId, hasFinal, combinedDests);
-               newState.unionizeDestinations();
+               const newState = new State(
+                  currDest.targetId,
+                  hasFinal,
+                  unionize(combinedDests)
+               );
                dfa.addState(newState);
             }
          });
       });
-
-      // this.states.forEach(currState => {
-      //    if (currState.id === dfa.startingStateId) return;
-      //    dfa.addState(new State(currState.id))
-      // });
 
       return dfa;
    }
