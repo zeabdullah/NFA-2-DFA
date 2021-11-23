@@ -17,9 +17,8 @@ interface FSAInterface {
 
    setStateFinal(stateId: string, newIsFinal: boolean): State | undefined;
 
-   // The Big Mann
    convertToDFA(): FSA;
-   unionizeStateDestinations(stateId: string): State;
+   // unionizeStateDestinations(stateId: string): State;
 }
 
 export default class FSA implements FSAInterface {
@@ -124,41 +123,21 @@ export default class FSA implements FSAInterface {
       return stateToMutate ? stateToMutate.setIsFinal(newIsFinal) : undefined;
    }
 
-   unionizeStateDestinations(stateId: string): State {
-      // step: combine all destinations from states sharing the id (id: 'q1,q2' means combine q1 destinations with q2 destinations)
+   // unionizeStateDestinations(stateId: string): State {
+   //    // assuming we have all the destinations now,
+   //    const oldState = this.findState(stateId) as State;
+   //    const newState = new State(
+   //       oldState.id,
+   //       oldState.isFinal,
+   //       oldState.unionizeDestinations()
+   //    );
+   //    // replace oldState of same id with newState
+   //    this.states.set(stateId, newState);
 
-      // TODO: know what to do with this.
-      /*       const splitIds: string[] = stateId.split(',');
-      const splitStates: State[] = splitIds.map(id => {
-         const stateRef = this.findState(id);
-         return new State(id, stateRef?.isFinal, stateRef?.destinations);
-      });
-      const combinedDestinations: Destination[] = splitStates.flatMap(
-         state => state.destinations
-      );
-      const unionizedDestinations = unionize(combinedDestinations);
- */
+   //    return newState;
+   // }
 
-      // let newDestinations: Destination[] = [];
-      // this.alphabet.forEach(inputStr => {
-      //    const dest: Destination = { input: inputStr, targetId: '' };
-      //    newDestinations = newDestinations.concat(dest);
-      // });
-
-      // assuming we have all the destinations now,
-      const oldState = this.findState(stateId) as State;
-      const newState = new State(
-         oldState.id,
-         oldState.isFinal,
-         oldState.unionizeDestinations()
-      );
-      // replace oldState of same id with newState
-      this.states.set(stateId, newState);
-
-      return newState;
-   }
-
-   // FIXME: worked in mustafa's example, didnt work on a second example
+   // TODO: There is still the part where we need to make dead states
    // converts NFA to DFA
    convertToDFA(): FSA {
       const getDestinationsOfconcattedState = (
@@ -169,7 +148,9 @@ export default class FSA implements FSAInterface {
 
          const splitIds: string[] = dest.targetId.split(',');
          splitIds.forEach((stateId: string) => {
+            stateId = stateId.trim();
             const currState = this.states.get(stateId);
+
             if (currState?.isFinal) hasFinal = true;
 
             const stateIdDests = currState?.destinations;
