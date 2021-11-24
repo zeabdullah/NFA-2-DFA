@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import unionize from '../helpers/unionize';
 
 export interface Destination {

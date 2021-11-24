@@ -133,15 +133,13 @@ export default class FSA implements FSAInterface {
    //    );
    //    // replace oldState of same id with newState
    //    this.states.set(stateId, newState);
-
    //    return newState;
    // }
 
-   // TODO: There is still the part where we need to make dead states
    // converts NFA to DFA
    convertToDFA(): FSA {
-      // 1. loop new FSA to find if each of the states' destinations' targetId is found
-      // 2. if not found, create new state with that id
+      // loop new DFA to find if each of the states' destinations' targetId is found.
+      // if not found, create new state with that id
       const sequentiallyAddDeterministicStates = (dfa: FSA) => {
          dfa.states.forEach(state => {
             state.destinations.forEach(currDest => {
@@ -178,6 +176,31 @@ export default class FSA implements FSAInterface {
          return [_.uniqWith(combinedDests, _.isEqual), hasFinal];
       };
 
+      const fillEmptyTransitions = (dfa: FSA) => {
+         dfa.alphabet.forEach(inputStr => {
+            dfa.states.forEach(state => {
+               let inputStrFound = false;
+
+               state.destinations.forEach(currDest => {
+                  if (inputStr === currDest.input) {
+                     inputStrFound = true;
+                     return;
+                  }
+               });
+               if (inputStrFound) return;
+
+               dfa.addDestinationToState(state.id, { input: inputStr, targetId: 'qdead' });
+            });
+         });
+         const deadState = dfa.findState('qdead');
+         if (!deadState) return;
+
+         dfa.alphabet.forEach(inputStr => {
+            deadState.destinations.push({ input: inputStr, targetId: 'qdead' });
+         });
+         dfa.findState('qdead')!.destinations = _.uniqWith(deadState.destinations, _.isEqual);
+      };
+
       // if there isn't even a starting state, then DFA is empty; return the same FSA
       if (!this.startingStateId) return this;
 
@@ -195,7 +218,7 @@ export default class FSA implements FSAInterface {
       );
 
       sequentiallyAddDeterministicStates(dfa);
-
+      fillEmptyTransitions(dfa);
       return dfa;
    }
 }
