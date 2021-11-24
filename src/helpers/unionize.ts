@@ -18,7 +18,7 @@ export default function unionize(destinations: Destination[]): Destination[] {
       if (newDestinations[destIndex])
          newDestinations[destIndex] = {
             ...newDestinations[destIndex], // input string never changes
-            targetId: `${newDestinations[destIndex].targetId}, ${oldDest.targetId}` // 'q1' becomes 'q1, q2'
+            targetId: `${newDestinations[destIndex].targetId},${oldDest.targetId}` // 'q1' becomes 'q1, q2'
          };
       else newDestinations[destIndex] = oldDest;
    });

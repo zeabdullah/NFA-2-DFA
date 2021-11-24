@@ -28,7 +28,10 @@ export default class State implements StateInterface {
    constructor(id: string, isFinal = false, destinations: Destination[] = []) {
       this.id = id;
       this.isFinal = isFinal;
-      this.destinations = destinations;
+      this.destinations = [];
+
+      // Using addDestination() for error handling
+      destinations.forEach(dest => this.addDestination(dest));
    }
 
    // Methods
@@ -68,7 +71,7 @@ export default class State implements StateInterface {
    }
 
    unionizeDestinations(): Destination[] {
-      this.destinations = unionize(this.destinations);
-      return this.destinations;
+      let newDestinations = unionize(this.destinations);
+      return newDestinations;
    }
 }

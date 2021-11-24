@@ -1,5 +1,6 @@
 import unionize from '../helpers/unionize';
 import State, { Destination } from './State';
+import _ from 'lodash';
 
 interface FSAInterface {
    states: Map<string, State>;
@@ -42,11 +43,13 @@ export default class FSA implements FSAInterface {
    // -------- methods ---------
    //
    addState({ id, isFinal = false, destinations = [] }: State): boolean {
+      // if number of states is 1, it means only newState exists; hence, make it starting
       const makeFirstStateStarting = () => {
          if (this.states.size === 1) this.startingStateId = id;
       };
 
-      const addNewInputStringToAlphabet = () => {
+      // check if any of the target destinations are new, so that we add it to the alphabet
+      const addNewInputStringsToAlphabet = () => {
          destinations.forEach(currDest => {
             if (!this.alphabet.get(currDest.input)) {
                this.alphabet.set(currDest.input, currDest.input);
@@ -65,10 +68,10 @@ export default class FSA implements FSAInterface {
 
       // if new state is final, append it to finalStates array
       if (isFinal) this.finalStates = this.finalStates.concat(id);
-      // if number of states is 1, it means only newState exists; hence, make it starting
+
       makeFirstStateStarting();
-      // check if any of the target destinations are new, so that we add it to the alphabet
-      addNewInputStringToAlphabet();
+
+      addNewInputStringsToAlphabet();
 
       return true;
    }
@@ -93,9 +96,6 @@ export default class FSA implements FSAInterface {
          if (!stateToMutate.addDestination(newDestination)) return false;
 
          this.alphabet.set(input, input);
-         console.log(
-            `Added new state ${targetId} to ${stateId}, because destination didn't exist`
-         );
          return this.addState(new State(targetId)); // will always return true
       }
 
@@ -140,25 +140,45 @@ export default class FSA implements FSAInterface {
    // TODO: There is still the part where we need to make dead states
    // converts NFA to DFA
    convertToDFA(): FSA {
+      // const getDestinationsOfconcattedState = (
+      //    dest: Destination
+      // ): [Destination[], boolean] => {
+      //    let hasFinal = false;
+      //    const combinedDests = new Set<Destination>();
+
+      //    const splitIds: string[] = dest.targetId.split(',');
+      //    splitIds.forEach((stateId: string) => {
+      //       const currState = this.findState(stateId);
+
+      //       if (currState?.isFinal) hasFinal = true;
+
+      //       const stateIdDests = currState?.destinations;
+      //       stateIdDests?.forEach(dest => {
+      //          combinedDests.add(dest);
+      //       });
+      //       console.log(combinedDests);
+      //    });
+      //    return [Array.from(combinedDests), hasFinal];
+      // };
+
       const getDestinationsOfconcattedState = (
          dest: Destination
       ): [Destination[], boolean] => {
          let hasFinal = false;
-         const combinedDests = new Set<Destination>();
+         let combinedDests: Destination[] = [];
 
          const splitIds: string[] = dest.targetId.split(',');
          splitIds.forEach((stateId: string) => {
-            stateId = stateId.trim();
-            const currState = this.states.get(stateId);
+            const currState = this.findState(stateId);
 
             if (currState?.isFinal) hasFinal = true;
 
             const stateIdDests = currState?.destinations;
             stateIdDests?.forEach(dest => {
-               combinedDests.add(dest);
+               combinedDests = combinedDests.concat(dest);
             });
          });
-         return [Array.from(combinedDests), hasFinal];
+         return [_.uniqWith(combinedDests, _.isEqual), hasFinal];
       };
 
       // if there isn't even a starting state, then DFA is empty; return the same FSA
@@ -182,7 +202,11 @@ export default class FSA implements FSAInterface {
       dfa.states.forEach(state => {
          state.destinations.forEach(currDest => {
             if (!dfa.findState(currDest.targetId)) {
+               // console.log(state.id, currDest);
+
                const [combinedDests, hasFinal] = getDestinationsOfconcattedState(currDest);
+               // console.log('before union', combinedDests);
+               // console.log('after union', unionize(combinedDests));
 
                const newState = new State(
                   currDest.targetId,
