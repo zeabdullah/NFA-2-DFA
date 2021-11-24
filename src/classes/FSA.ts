@@ -140,27 +140,24 @@ export default class FSA implements FSAInterface {
    // TODO: There is still the part where we need to make dead states
    // converts NFA to DFA
    convertToDFA(): FSA {
-      // const getDestinationsOfconcattedState = (
-      //    dest: Destination
-      // ): [Destination[], boolean] => {
-      //    let hasFinal = false;
-      //    const combinedDests = new Set<Destination>();
+      // 1. loop new FSA to find if each of the states' destinations' targetId is found
+      // 2. if not found, create new state with that id
+      const sequentiallyAddDeterministicStates = (dfa: FSA) => {
+         dfa.states.forEach(state => {
+            state.destinations.forEach(currDest => {
+               if (!dfa.findState(currDest.targetId)) {
+                  const [combinedDests, hasFinal] = getDestinationsOfconcattedState(currDest);
 
-      //    const splitIds: string[] = dest.targetId.split(',');
-      //    splitIds.forEach((stateId: string) => {
-      //       const currState = this.findState(stateId);
-
-      //       if (currState?.isFinal) hasFinal = true;
-
-      //       const stateIdDests = currState?.destinations;
-      //       stateIdDests?.forEach(dest => {
-      //          combinedDests.add(dest);
-      //       });
-      //       console.log(combinedDests);
-      //    });
-      //    return [Array.from(combinedDests), hasFinal];
-      // };
-
+                  const newState = new State(
+                     currDest.targetId,
+                     hasFinal,
+                     unionize(combinedDests)
+                  );
+                  dfa.addState(newState);
+               }
+            });
+         });
+      };
       const getDestinationsOfconcattedState = (
          dest: Destination
       ): [Destination[], boolean] => {
@@ -197,26 +194,7 @@ export default class FSA implements FSAInterface {
          )
       );
 
-      // 1. loop new FSA to find if each of the states' destinations' targetId is found
-      // 2. if not found, create new state with that id
-      dfa.states.forEach(state => {
-         state.destinations.forEach(currDest => {
-            if (!dfa.findState(currDest.targetId)) {
-               // console.log(state.id, currDest);
-
-               const [combinedDests, hasFinal] = getDestinationsOfconcattedState(currDest);
-               // console.log('before union', combinedDests);
-               // console.log('after union', unionize(combinedDests));
-
-               const newState = new State(
-                  currDest.targetId,
-                  hasFinal,
-                  unionize(combinedDests)
-               );
-               dfa.addState(newState);
-            }
-         });
-      });
+      sequentiallyAddDeterministicStates(dfa);
 
       return dfa;
    }
