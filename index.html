@@ -41,41 +41,34 @@
       </form>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>0</th>
-          <th>1</th>
-          <th>Starting</th>
-          <th>Final</th>
-          <th>Edits</th>
-        </tr>
-      </thead>
+    <form>
 
-      <tbody>
-        <tr class="data-row">
-          <td>Alvin</td>
-          <td>Eclair</td>
-          <td>$0.87</td>
-          <td>$0.87</td>
-          <td><i href="#" class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i></td>
-        </tr>
-        <tr class="data-row">
-          <td>Alan</td>
-          <td>Jellybean</td>
-          <td>$3.76</td>
-          <td>$3.76</td>
-          <td><i href="#" class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i></td>
-        </tr>
-        <tr class="data-row">
-          <td>Jonathan</td>
-          <td>Lollipop</td>
-          <td>$7.00</td>
-          <td>$7.00</td>
-          <td><i href="#" class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i></td>
-        </tr>
-      </tbody>
-    </table>
+      <table>
+        <thead>
+          <tr>
+            <th>0</th>
+            <th>1</th>
+            <th>Starting</th>
+            <th>Final</th>
+            <th>Edits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="data-row">
+            <td>Alvin</td>
+            <td>Eclair</td>
+            <td class="column-starting">
+              <label>
+                <input type="radio" class="with-gap" name="starting">
+                <span>sometext</span>
+              </label>
+            </td>
+            <td>$0.87</td>
+            <td><i href="#" class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
 
     <!-- <form id="states-form">
       <table class="nfa-table">
