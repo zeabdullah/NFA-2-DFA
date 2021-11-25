@@ -174,6 +174,11 @@ lodash@^4.17.21:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
+mdb-ui-kit@^3.10.1:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/mdb-ui-kit/-/mdb-ui-kit-3.10.1.tgz#1193f855a0b813d103d2b8a0e95e6f8fbfc096d0"
+  integrity sha512-9L/GvW5DfiD9EbsvPgW9lDigPvp5eD0yWScKHkrJ89imRG6PyjAl9Huq/XwJz46LdG6ppBwtvaQ4zk8p5ljWxg==
+
 nanoid@^3.1.30:
   version "3.1.30"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.1.30.tgz"
