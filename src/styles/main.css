@@ -13,9 +13,10 @@
 .form-container {
    margin-bottom: 4rem;
 }
-#new-alphabet-str-form {
-   padding: 0 12rem;
-}
+/* #new-state-input,
+#new-alphabet-str-input {
+   max-width: 40%;
+} */
 
 section.last {
    margin-bottom: 5rem;
