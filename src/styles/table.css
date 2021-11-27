@@ -1,0 +1,19 @@
+.cell-text[contenteditable='true'] {
+   outline: 2px solid var(--purple-primary);
+   border-collapse: collapse;
+}
+
+td i.fa {
+   font-size: 1.3rem;
+   margin-right: 0.7rem;
+   cursor: pointer;
+}
+tr:not(.editing) td i.save {
+   display: none;
+}
+
+/* [type='radio']:checked + span.radio-purple:after,
+[type='radio'].with-gap:checked + span.radio-purple:after {
+   background-color: var(--purple-primary);
+   border: 2px solid var(--purple-primary);
+} */

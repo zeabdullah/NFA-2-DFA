@@ -2,97 +2,120 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite App</title>
+   <meta charset="UTF-8" />
+   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>Vite App</title>
 
-  <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
-    integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+   <!-- Compiled and minified CSS -->
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+      integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
 
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+   <!-- Compiled and minified JavaScript -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 
 <body>
-  <div id="app">
-    <h1>Hello world!</h1>
+   <div id="app">
+      <main class="container">
+         <h1>Hello world!</h1>
 
-    <canvas id="canvas" width="1100" height="700"></canvas>
+         <!-- <canvas id="canvas" width="700" height="500"></canvas> -->
 
-    <div class="row">
-      <form id="new-state-form col s12">
+         <div class="row form-container">
+            <form id="new-state-form" class="col s12 m6">
+               <div class="">
+                  <div class="input-field new-state">
+                     <input type="text" class="validate" id="new-state-input" value="" required>
+                     <label for="new-state-input">State Name</label>
+                  </div>
+                  <p>
+                     <label>
+                        <input type="checkbox" id="new-state-checkbox" class="filled-in">
+                        <span>Is Final?</span>
+                     </label>
+                  </p>
+               </div>
+               <div>
+                  <button type="submit" class="waves-effect waves-light btn purple darken-1">New State</button>
+               </div>
+            </form>
 
-        <div class="row">
-          <div class="input-field col s6">
-            <input type="text" class="validate" id="state-id" value="" required>
-            <label for="state-id">New State Name</label>
-          </div>
-        </div>
+            <form id="new-alphabet-str-form" class="col s12 m6">
+               <div class="">
+                  <div class="input-field new-alphabet-str">
+                     <input type="text" class="validate" id="new-alphabet-str-input" value="" required>
+                     <label for="new-alphabet-str-input">Input String</label>
+                  </div>
+               </div>
 
-        <div class="row">
-          <div class="col s6">
-            <button type="submit" class="waves-effect waves-light btn purple darken-1">New State</button>
-          </div>
-        </div>
+               <div>
+                  <button type="submit" class="waves-effect btn teal ">New Input String</button>
+               </div>
+            </form>
+         </div>
 
-      </form>
-    </div>
 
-    <form>
+         <section class="last">
+            <form>
+               <table>
+                  <thead>
+                     <tr>
+                        <th class="th-state-id">State ID</th>
+                        <!-- <th>0</th>
+                        <th>1</th> -->
+                        <th class="th-state-starting">Starting</th>
+                        <th class="th-state-final">Final</th>
+                        <th>Edits</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr class="data-row">
+                        <td class="cell-text">
+                           <div class="">
+                              <input class="input" id="input">
+                           </div>
+                        </td>
+                        <td class="cell-text">
+                           <div class="chips">
+                              <input class="input">
+                           </div>
+                        </td>
+                        <td class="cell-text">
+                           <div class="chips">
+                              <input class="input">
+                           </div>
+                        </td>
+                        <td class="column-starting">
+                           <label>
+                              <input type="radio" class="with-gap" name="starting">
+                              <span>sometext</span>
+                           </label>
+                        </td>
+                        <td class="cell-text">
+                           <label>
+                              <input type="checkbox" class="filled-in" checked="checked">
+                              <span></span>
+                           </label>
+                        </td>
+                        <td>
+                           <i href="#" class="fa fa-check save green-text"> </i><i href="#"
+                              class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </form>
+         </section>
 
-      <table>
-        <thead>
-          <tr>
-            <th>0</th>
-            <th>1</th>
-            <th>Starting</th>
-            <th>Final</th>
-            <th>Edits</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="data-row">
-            <td>Alvin</td>
-            <td>Eclair</td>
-            <td class="column-starting">
-              <label>
-                <input type="radio" class="with-gap" name="starting">
-                <span>sometext</span>
-              </label>
-            </td>
-            <td>$0.87</td>
-            <td><i href="#" class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i></td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
+      </main>
+   </div>
 
-    <!-- <form id="states-form">
-      <table class="nfa-table">
-        <thead class="thead">
-          <th>ID</th>
-          <th>0</th>
-          <th>1</th>
-          <th>Is Final</th>
-          <th>Starting State</th>
-        </thead>
-        <tbody class="all-states">
-          <tr class="state-row">
-            <td class="state-id">state.id</td>
-            <td class="state-transition">q1</td>
-            <td class="state-transition">q2</td>
-            <td class="state-is-final"><input type="checkbox" checked /></td>
-            <td class="state-is-starting"><input type="radio" name="is-starting" /></td>
-          </tr>
-        </tbody>
-      </table>
-    </form> -->
-  </div>
-
-  <script type="module" src="/src/main.ts"></script>
+   <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>
