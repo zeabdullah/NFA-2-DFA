@@ -2,15 +2,17 @@ import FSA from './classes/FSA';
 import State from './classes/State';
 
 // HTML elements
-const tableDataRows = document.querySelectorAll<HTMLTableRowElement>('.data-row'),
-   newStateForm = document.querySelector<HTMLFormElement>('#new-state-form')!,
-   newStateInput = document.querySelector<HTMLInputElement>('#new-state-input')!,
-   isFinalCheckbox = document.querySelector<HTMLInputElement>('#new-state-checkbox')!,
-   alphabetStrForm = document.querySelector<HTMLFormElement>('#new-alphabet-str-form')!,
-   alphabetStrInput = document.querySelector<HTMLInputElement>('#new-alphabet-str-input')!;
+const tableBody = document.querySelector('tbody')!;
+const newStateForm = document.querySelector('#new-state-form') as HTMLFormElement;
+const newStateInput = document.querySelector('#new-state-input') as HTMLInputElement;
+const isFinalCheckbox = document.querySelector('#new-state-checkbox') as HTMLInputElement;
+const alphabetStrForm = document.querySelector('#new-alphabet-str-form') as HTMLFormElement;
+const alphabetStrInput = document.querySelector('#new-alphabet-str-input') as HTMLInputElement;
+
 // Variables
 let nfa: FSA;
 
+// Initialize some things in the page
 init();
 
 function init() {
@@ -20,43 +22,56 @@ function init() {
    nfa.alphabet.set('b', 'b');
    nfa.alphabet.set('c', 'c');
 
+   updateStatesTable(nfa);
    preventFormsFromSubmitting();
-   initEditRowListeners();
 
+   tableBody.addEventListener('click', iconClickHandler);
    newStateForm.addEventListener('submit', newStateSubmitHandler);
    alphabetStrForm.addEventListener('submit', newAlphabetStrSubmitHandler);
 }
 
+function iconClickHandler(e: MouseEvent) {
+   const target = e.target as HTMLElement;
+
+   if (target.matches('i.delete'))
+      deleteStateRow(target.parentElement!.parentElement as HTMLTableRowElement);
+   else if (target.matches('i.edit'))
+      EditStateRow(target.parentElement!.parentElement as HTMLTableRowElement);
+   else if (target.matches('i.save'))
+      saveStateRowChanges(target.parentElement!.parentElement as HTMLTableRowElement);
+}
+
 function newStateSubmitHandler() {
    const newState = new State(newStateInput.value, isFinalCheckbox.checked);
-   nfa.addState(newState) && console.log('new State added to nfa', nfa);
+   nfa.addState(newState);
 
    updateStatesTable(nfa);
-
    resetNewStateForm();
 }
 
 function newAlphabetStrSubmitHandler() {
+   nfa.alphabet.set(alphabetStrInput.value, alphabetStrInput.value);
+
+   updateStatesTable(nfa);
    resetAlphabetStrForm();
 }
 
-function updateStatesTable(nfa: FSA) {
+function updateStatesTable(fsa: FSA) {
    // 1. update column count based on alphabet size
-   updateColumnCount();
-
+   updateColumnCount(fsa);
    // 2. have a row for each state in the nfa
-   updateRowCount();
+   updateRowCount(fsa);
 }
 
-// 1. update column count based on alphabet size
-function updateColumnCount() {
+// update column count based on alphabet size
+function updateColumnCount(fsa: FSA) {
    const stateStartingColumn =
       document.querySelector<HTMLTableCellElement>('.th-state-starting')!;
 
+   // clear table from previously inserted alphabet strings
    clearPrevInputStrColumns();
-
    // for each input string in alphabet, create a new {th}
-   nfa.alphabet.forEach(inputStr => {
+   fsa.alphabet.forEach(inputStr => {
       insertInputStrColumn(inputStr);
    });
 
@@ -79,13 +94,12 @@ function updateColumnCount() {
    }
 }
 
-function updateRowCount() {
+function updateRowCount(fsa: FSA) {
    // select {tbody}, the container of all state rows and initialize it
-   const tableBody = document.querySelector('tbody')!;
    tableBody.innerHTML = '';
 
    // fill {tbody} with the state rows one by one
-   nfa.states.forEach(state => {
+   fsa.states.forEach(state => {
       const completeStateRow = createRowfromState(state);
       tableBody.append(completeStateRow);
    });
@@ -93,46 +107,49 @@ function updateRowCount() {
    function createRowfromState(state: State): HTMLTableRowElement {
       // create table row
       const stateRow = document.createElement('tr');
+      stateRow.className = 'state-row';
 
       // first cell = id
       const idCell = document.createElement('td');
-      idCell.innerHTML = `<div><input class="input" value="${state.id}"></div>`;
+      idCell.className = 'column-id';
+      idCell.innerHTML = `<div><input class="input text-cell" value="${state.id}" disabled></div>`;
       stateRow.append(idCell);
 
       // middle cells = destinations
-      nfa.alphabet.forEach(inputStr => {
+      fsa.alphabet.forEach(_inputStr => {
          // create table cell
          const inputStrCell = document.createElement('td');
+         // set class
+         inputStrCell.className = 'column-alphabet-str';
          // set innerHTML
-         inputStrCell.innerHTML = `<div class="chips"><input class="input"></div>`;
+         inputStrCell.innerHTML = `<div class="chips"><input class="input text-cell" disabled></div>`;
          // append to parent row
          stateRow.append(inputStrCell);
       });
 
       // next cell = isStarting radio btn
       const radioCell = document.createElement('td');
+      radioCell.className = 'column-starting';
       radioCell.innerHTML = `
-      <td class="column-starting">
-         <label>
-            <input type="radio" class="with-gap" name="starting">
-            <span>yes</span>
-         </label>
-      </td>`;
+      <label>
+         <input type="radio" class="with-gap" name="starting">
+         <span>yes</span>
+      </label>`;
       stateRow.append(radioCell);
 
       // next cell = isFinal checkbox
       const checkboxCell = document.createElement('td');
+      checkboxCell.className = 'column-isfinal';
       checkboxCell.innerHTML = `
-      <td class="column-isfinal">
-         <label>
-            <input type="checkbox" class="filled-in" checked="checked">
-            <span>yes</span>
-         </label>
-      </td>`;
+      <label>
+         <input type="checkbox" class="filled-in" checked="checked">
+         <span>yes</span>
+      </label>`;
       stateRow.append(checkboxCell);
 
       // last cell = edit/delete icons
       const iconsCell = document.createElement('td');
+      iconsCell.className = 'column-icons';
       iconsCell.innerHTML = `
       <td>
       <i href="#" class="fa fa-check save green-text"> </i><i href="#"
@@ -158,25 +175,23 @@ function preventFormsFromSubmitting() {
       .forEach(formEl => formEl.addEventListener('submit', e => e.preventDefault()));
 }
 
-function initEditRowListeners() {
-   tableDataRows.forEach(dataRow => {
-      dataRow.addEventListener('click', (e: MouseEvent) => {
-         const target = e.target as HTMLElement;
+function deleteStateRow(stateRow: HTMLTableRowElement) {
+   const idInput = stateRow.querySelector<HTMLInputElement>('.column-id input');
 
-         if (target.matches('i.delete')) deleteDataRow(dataRow);
-         else if (target.matches('i.edit')) editDataRow(dataRow);
-      });
-   });
+   nfa.removeState(idInput!.value);
+   stateRow.remove(); // removes stateRow from the DOM
+}
+function EditStateRow(stateRow: HTMLTableRowElement) {
+   const cellInputs = stateRow.querySelectorAll<HTMLInputElement>('.text-cell');
+
+   stateRow.classList.add('editing');
+
+   cellInputs.forEach(cell => cell.removeAttribute('disabled'));
 }
 
-function deleteDataRow(dataRow: HTMLTableRowElement) {
-   dataRow.remove(); // .remove() is a DOM function
-}
-function editDataRow(dataRow: HTMLTableRowElement) {
-   const textCells = dataRow.querySelectorAll<HTMLTableCellElement>('.cell-text');
+function saveStateRowChanges(stateRow: HTMLTableRowElement) {
+   const cellInputs = stateRow.querySelectorAll<HTMLInputElement>('.text-cell');
 
-   dataRow.classList.toggle('editing');
-   if (dataRow.classList.contains('editing'))
-      textCells.forEach(cell => cell.setAttribute('contenteditable', 'true'));
-   else textCells.forEach(cell => cell.setAttribute('contenteditable', 'false'));
+   stateRow.classList.remove('editing');
+   cellInputs.forEach(cell => cell.setAttribute('disabled', 'true'));
 }

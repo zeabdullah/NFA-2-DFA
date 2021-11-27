@@ -9,7 +9,7 @@ interface FSAInterface {
    alphabet: Map<string, string>;
 
    addState(newState: State): boolean;
-   // removeState(id: string): State | undefined;
+   removeState(id: string): State | undefined;
    // renameState(oldId: String, newId: string): State;
    findState(id: string): State | undefined;
 
@@ -74,6 +74,12 @@ export default class FSA implements FSAInterface {
       addNewInputStringsToAlphabet();
 
       return true;
+   }
+
+   removeState(id: string): State | undefined {
+      const removedState = this.findState(id);
+      this.states.delete(id);
+      return removedState;
    }
 
    findState(id: string): State | undefined {

@@ -22,9 +22,11 @@
 <body>
    <div id="app">
       <main class="container">
-         <h1>Hello world!</h1>
+         <h1>NFA to DFA Converter 🔁</h1>
 
          <!-- <canvas id="canvas" width="700" height="500"></canvas> -->
+         <h2>NFA Drawing</h2>
+         <div class="viz nfa-drawing"></div>
 
          <div class="row form-container">
             <form id="new-state-form" class="col s6">
@@ -112,10 +114,13 @@
             </form>
          </section>
 
+         <h2>DFA Drawing</h2>
+         <div class="viz dfa-drawing"></div>
+
       </main>
    </div>
 
-   <script type="module" src="/src/main.ts"></script>
+   <script type="module" src="/src/index.ts"></script>
 </body>
 
 </html>

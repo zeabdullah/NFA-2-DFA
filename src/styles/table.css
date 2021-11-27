@@ -8,9 +8,18 @@ td i.fa {
    margin-right: 0.7rem;
    cursor: pointer;
 }
-tr:not(.editing) td i.save {
+
+tr:not(.editing) > td i.save {
    display: none;
 }
+
+tr.editing > td :is(i.delete, i.edit) {
+   display: none;
+}
+
+/* tr:not(.editing) > td input.text-cell {
+
+} */
 
 /* [type='radio']:checked + span.radio-purple:after,
 [type='radio'].with-gap:checked + span.radio-purple:after {

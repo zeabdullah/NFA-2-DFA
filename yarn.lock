@@ -2,19 +2,6 @@
 # yarn lockfile v1
 
 
-"@types/createjs-lib@*":
-  version "0.0.29"
-  resolved "https://registry.npmjs.org/@types/createjs-lib/-/createjs-lib-0.0.29.tgz"
-  integrity sha1-+uguO6hgZmOxkOeJzsfZxyj8Qdc=
-
-"@types/easeljs@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/@types/easeljs/-/easeljs-1.0.1.tgz"
-  integrity sha512-mu4oIs+2CbN60Vgq8DSt7aXR2I0tV9K2ev/ZIPlkyE5UvQ+xIvw8D3NDB4dnGFkvHN303faYcETIhuvNDm6siQ==
-  dependencies:
-    "@types/createjs-lib" "*"
-    "@types/tweenjs" "*"
-
 "@types/jquery@*":
   version "3.5.9"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.9.tgz#08e4b1dcff0626926ffe545a2bc90f18140c53d6"
@@ -40,27 +27,15 @@
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.3.tgz#ff5e2f1902969d305225a047c8a0fd5c915cebef"
   integrity sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==
 
-"@types/tweenjs@*":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@types/tweenjs/-/tweenjs-1.0.4.tgz"
-  integrity sha512-UnGcZRjGYz2w+2LB/70QkzWjtqOcTu4Nxa/Cy9YZ4I8HU44kcayNgbXZYMQu4ll7z+1GP7r1+viqLKNv7+Mrzw==
-  dependencies:
-    "@types/createjs-lib" "*"
+"@types/viz.js@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@types/viz.js/-/viz.js-2.1.2.tgz#6ad50289e5c516c4a7f9058e1deda91b3518a8c0"
+  integrity sha512-qoiKEOoOSPwZbDGPoVnJwSPO/cirMT01KkvknXuZGIGNC+UPcrB97NgAOz1pbcXDrpL7Z/kn1Ojci1TozNy0/w==
 
 cash-dom@*:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/cash-dom/-/cash-dom-8.1.0.tgz#ed8e278231c071b6596618131bd4320c57d32a31"
   integrity sha512-QTa50rFuPaX8klEDEbwLr+jVutwpvZEBQ0NpMMyng+je7gNe9Bz/JsOLHIG24tvNSSSIN/Q1QD0bnF6PQzWKHA==
-
-createjs-module@^0.8.3:
-  version "0.8.3"
-  resolved "https://registry.npmjs.org/createjs-module/-/createjs-module-0.8.3.tgz"
-  integrity sha1-Mo/6LhR0HXMD09CL2XzhgjNldB8=
-
-easeljs@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/easeljs/-/easeljs-1.0.2.tgz"
-  integrity sha512-PQTsiud32vrUIqZCbynjOJjCzoEp0xH+MRusRCdsZ1MzL4LCE2vp4Sa5cr6aShB3mK4vMZ8LFPnts4xuFhjEmg==
 
 esbuild-android-arm64@0.13.10:
   version "0.13.10"
@@ -264,3 +239,8 @@ vite@^2.6.4:
     rollup "^2.57.0"
   optionalDependencies:
     fsevents "~2.3.2"
+
+viz.js@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/viz.js/-/viz.js-2.1.2.tgz#6f09cd4e10af28754a6d50b055bd2e4a7693983a"
+  integrity sha512-UO6CPAuEMJ8oNR0gLLNl+wUiIzQUsyUOp8SyyDKTqVRBtq7kk1VnFmIZW8QufjxGrGEuI+LVR7p/C7uEKy0LQw==
