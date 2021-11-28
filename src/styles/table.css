@@ -21,6 +21,10 @@ tr.editing > td :is(i.delete, i.edit) {
    display: none;
 }
 
+tr.state-row:not(.editing) {
+   background-color: #eeeeee;
+}
+
 /* tr:not(.editing) > td input.text-cell {
 
 } */

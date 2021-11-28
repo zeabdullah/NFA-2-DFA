@@ -4,10 +4,13 @@ import State from './classes/State';
 import { renderVizToDOM, vizDfaDrawingContainer, vizNfaDrawingContainer } from './content/viz';
 
 // HTML elements
-const tableBody = document.querySelector('tbody')!;
+const NfaTableBody = document.querySelector('#nfa-table tbody') as HTMLTableSectionElement;
+const DfaTableBody = document.querySelector('#dfa-table tbody') as HTMLTableSectionElement;
 const newStateForm = document.querySelector('#new-state-form') as HTMLFormElement;
 const newStateInput = document.querySelector('#new-state-input') as HTMLInputElement;
-const isFinalCheckbox = document.querySelector('#new-state-checkbox') as HTMLInputElement;
+const newStateFinalCheckbox = document.querySelector(
+   '#new-state-checkbox'
+) as HTMLInputElement;
 const alphabetStrForm = document.querySelector('#new-alphabet-str-form') as HTMLFormElement;
 const alphabetStrInput = document.querySelector('#new-alphabet-str-input') as HTMLInputElement;
 const testStringForm = document.querySelector('#test-str-form') as HTMLFormElement;
@@ -16,26 +19,59 @@ const convertButton = document.querySelector('#btn-convert') as HTMLButtonElemen
 
 // Variables
 let nfa: FSA;
+let dfa: FSA;
 
 // Initialize some things in the page
 init();
 
-function init() {
+function init(): void {
    initChips();
 
    nfa = new FSA();
-   updateStatesTable(nfa);
+   updateStatesTable(nfa, NfaTableBody, false);
    preventFormsFromSubmitting();
 
    newStateForm.addEventListener('submit', newStateSubmitHandler);
    alphabetStrForm.addEventListener('submit', newAlphabetStrSubmitHandler);
    testStringForm.addEventListener('submit', testStringSubmitHandler);
-   tableBody.addEventListener('click', iconClickHandler);
+   NfaTableBody.addEventListener('click', iconClickHandler);
    convertButton.addEventListener('click', convertButtonHandler);
 }
 function initChips(): void {
    const chips = document.querySelectorAll('.chips');
-   M.Chips.init(chips);
+   const instances = M.Chips.init(chips);
+
+   instances.forEach(chip => {
+      chip.options.onChipAdd = chipAddHandler;
+      chip.options.onChipDelete = chipDeleteHandler;
+   });
+
+   function chipAddHandler(this: M.Chips, element: any, chip: Element) {
+      const el = element[0] as Element;
+      const parentInput = el.parentElement as HTMLInputElement;
+      const parentStateRow = el.parentElement?.parentElement as HTMLElement;
+      const parentState = nfa.findState(parentStateRow.getAttribute('data-id')!) as State;
+
+      const inputStr = parentInput.getAttribute('data-input-str') as string;
+      const chipValue = chip.childNodes[0].textContent as string;
+
+      nfa.addDestinationToState(parentState.id, { input: inputStr, targetId: chipValue });
+
+      renderVizToDOM(nfa, vizNfaDrawingContainer);
+   }
+   function chipDeleteHandler(this: M.Chips, element: any, chip: Element) {
+      const el = element[0] as Element;
+      const parentInput = el.parentElement as HTMLInputElement;
+      const parentStateRow = el.parentElement?.parentElement as HTMLElement;
+      const parentState = nfa.findState(parentStateRow.getAttribute('data-id')!);
+
+      const inputStr = parentInput.getAttribute('data-input-str') as string;
+      const chipValue = chip.childNodes[0].textContent as string;
+
+      parentState?.removeDestination({ input: inputStr, targetId: chipValue });
+
+      renderVizToDOM(nfa, vizNfaDrawingContainer);
+   }
 }
 
 function iconClickHandler(e: MouseEvent): void {
@@ -56,19 +92,20 @@ function convertButtonHandler(): void {
       return;
    }
 
-   const dfa = nfa.convertToDFA();
+   console.log(nfa);
+   dfa = nfa.convertToDFA();
+   console.warn(dfa);
 
-   updateStatesTable(dfa);
+   updateStatesTable(dfa, DfaTableBody, true);
    renderVizToDOM(dfa, vizDfaDrawingContainer);
 }
 
 function newStateSubmitHandler(): void {
-   const newState = new State(newStateInput.value, isFinalCheckbox.checked);
+   const newState = new State(newStateInput.value, newStateFinalCheckbox.checked);
    nfa.addState(newState);
 
-   updateStatesTable(nfa);
+   updateStatesTable(nfa, NfaTableBody, false);
    initChips();
-   // console.log(nfa);
 
    renderVizToDOM(nfa, vizNfaDrawingContainer);
    resetNewStateForm();
@@ -77,7 +114,7 @@ function newStateSubmitHandler(): void {
 function newAlphabetStrSubmitHandler(): void {
    nfa.alphabet.set(alphabetStrInput.value, alphabetStrInput.value);
 
-   updateStatesTable(nfa);
+   updateStatesTable(nfa, NfaTableBody, false);
    initChips();
 
    renderVizToDOM(nfa, vizNfaDrawingContainer);
@@ -85,25 +122,41 @@ function newAlphabetStrSubmitHandler(): void {
 }
 
 function testStringSubmitHandler(): void {
-   //
+   const testStr: string = testStringInput.value;
+
+   if (!dfa) {
+      alert('CANNOT TEST STRING. DFA is null');
+      return;
+   }
+
+   for (const char of testStr) {
+      if (!dfa.alphabet.has(char)) {
+         alert('CANNOT TEST STRING. Part of the string does not belong to alphabet');
+         return;
+      }
+   }
 
    resetTestStrForm();
 }
 
-function updateStatesTable(fsa: FSA): void {
+function updateStatesTable(
+   fsa: FSA,
+   tableBody: HTMLTableSectionElement,
+   isDFA: boolean
+): void {
    // 1. update column count based on alphabet size
-   updateColumnCount(fsa);
+   updateColumnCount(fsa, tableBody);
    // 2. have a row for each state in the nfa
-   updateRowCount(fsa);
+   updateRowCount(fsa, tableBody, isDFA);
 }
 
 // update column count based on alphabet size
-function updateColumnCount(fsa: FSA): void {
+function updateColumnCount(fsa: FSA, tableBody: HTMLTableSectionElement): void {
    const stateStartingColumn =
-      document.querySelector<HTMLTableCellElement>('.th-state-starting')!;
+      tableBody.parentElement!.querySelector<HTMLTableCellElement>('.th-state-starting')!;
 
    // clear table from previously inserted alphabet strings
-   clearPrevInputStrColumns();
+   clearPrevInputStrColumns(tableBody);
    // for each input string in alphabet, create a new {th}
    fsa.alphabet.forEach(inputStr => {
       insertInputStrColumn(inputStr);
@@ -123,25 +176,28 @@ function updateColumnCount(fsa: FSA): void {
    }
 
    // clears table from previously inserted alphabet strings
-   function clearPrevInputStrColumns() {
-      document.querySelectorAll('.th-input-str').forEach(el => el.remove());
+   function clearPrevInputStrColumns(tableBody: HTMLTableSectionElement) {
+      tableBody.parentElement!.querySelectorAll('.th-input-str').forEach(el => el.remove());
    }
 }
 
-function updateRowCount(fsa: FSA): void {
+function updateRowCount(fsa: FSA, tableBody: HTMLTableSectionElement, isDFA: boolean): void {
    // select {tbody}, the container of all state rows and initialize it
    tableBody.innerHTML = '';
 
    // fill {tbody} with the state rows one by one
    fsa.states.forEach(state => {
-      const completeStateRow = createRowfromState(state);
+      const completeStateRow = createRowfromState(state, isDFA);
       tableBody.append(completeStateRow);
    });
 
-   function createRowfromState(state: State): HTMLTableRowElement {
+   initChips();
+
+   function createRowfromState(state: State, isDFA: boolean): HTMLTableRowElement {
       // create table row
       const stateRow = document.createElement('tr');
       stateRow.className = 'state-row';
+      stateRow.setAttribute('data-id', state.id);
 
       // first cell = id
       const idCell = document.createElement('td');
@@ -150,11 +206,13 @@ function updateRowCount(fsa: FSA): void {
       stateRow.append(idCell);
 
       // middle cells = destinations
-      fsa.alphabet.forEach(_inputStr => {
+      fsa.alphabet.forEach(inputStr => {
          // create table cell
          const inputStrCell = document.createElement('td');
          // set class
          inputStrCell.className = 'column-alphabet-str';
+         inputStrCell.setAttribute('data-input-str', inputStr);
+
          // set innerHTML
          inputStrCell.innerHTML = `<div class="chips"><input class="input text-cell" disabled></div>`;
          // append to parent row
@@ -184,14 +242,16 @@ function updateRowCount(fsa: FSA): void {
       stateRow.append(checkboxCell);
 
       // last cell = edit/delete icons
-      const iconsCell = document.createElement('td');
-      iconsCell.className = 'column-icons';
-      iconsCell.innerHTML = `
-      <td>
-      <i href="#" class="fa fa-check save green-text"> </i><i href="#"
-         class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i>
-      </td>`;
-      stateRow.append(iconsCell);
+      if (!isDFA) {
+         const iconsCell = document.createElement('td');
+         iconsCell.className = 'column-icons';
+         iconsCell.innerHTML = `
+         <td>
+         <i href="#" class="fa fa-check save green-text"> </i><i href="#"
+            class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i>
+         </td>`;
+         stateRow.append(iconsCell);
+      }
 
       // after appending all cells, return the row
       return stateRow;
@@ -224,6 +284,12 @@ function deleteStateRow(stateRow: HTMLTableRowElement) {
 function EditStateRow(stateRow: HTMLTableRowElement): void {
    const cellInputs = stateRow.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
 
+   const isFinalCheckboxes = document.querySelectorAll('#nfa-table input[type="checkbox"]');
+   isFinalCheckboxes.forEach(checkbox => {
+      checkbox.removeEventListener('change', isFinalCheckboxChangeHandler);
+      checkbox.addEventListener('change', isFinalCheckboxChangeHandler);
+   });
+
    stateRow.classList.add('editing');
 
    cellInputs.forEach(cell => cell.removeAttribute('disabled'));
@@ -234,4 +300,14 @@ function saveStateRowChanges(stateRow: HTMLTableRowElement) {
 
    stateRow.classList.remove('editing');
    cellInputs.forEach(cell => cell.setAttribute('disabled', 'true'));
+}
+
+function isFinalCheckboxChangeHandler(e: Event) {
+   const target = e.target as HTMLInputElement;
+   const parentStateRow = target.parentElement?.parentElement?.parentElement as HTMLElement;
+   const parentState = nfa.findState(parentStateRow.getAttribute('data-id')!) as State;
+
+   nfa.setStateFinal(parentState.id, target.checked);
+
+   renderVizToDOM(nfa, vizNfaDrawingContainer);
 }

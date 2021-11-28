@@ -126,6 +126,7 @@ export default class FSA implements FSAInterface {
       if (!stateToMutate) return undefined;
 
       if (newIsFinal) this.finalStates.push(stateId);
+      else this.finalStates = this.finalStates.filter(currId => currId !== stateId);
       return stateToMutate.setIsFinal(newIsFinal);
    }
 
