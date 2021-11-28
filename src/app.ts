@@ -135,8 +135,10 @@ function updateRowCount(fsa: FSA) {
       radioCell.className = 'column-starting';
       radioCell.innerHTML = `
       <label>
-         <input type="radio" class="with-gap" name="starting">
-         <span>yes</span>
+         <input type="radio" class="with-gap" name="starting" ${
+            nfa.startingStateId === state.id && 'checked'
+         }>
+         <span> </span>
       </label>`;
       stateRow.append(radioCell);
 
@@ -145,8 +147,8 @@ function updateRowCount(fsa: FSA) {
       checkboxCell.className = 'column-isfinal';
       checkboxCell.innerHTML = `
       <label>
-         <input type="checkbox" class="filled-in" checked="checked">
-         <span>yes</span>
+         <input type="checkbox" class="filled-in" ${state.isFinal && 'checked'}>
+         <span> </span>
       </label>`;
       stateRow.append(checkboxCell);
 
