@@ -1,6 +1,6 @@
 import unionize from '../helpers/unionize';
 import State, { Destination } from './State';
-import _ from 'lodash';
+import { uniqWith, isEqual } from 'lodash';
 
 interface FSAInterface {
    states: Map<string, State>;
@@ -167,7 +167,7 @@ export default class FSA implements FSAInterface {
                combinedDests = combinedDests.concat(dest);
             });
          });
-         return [_.uniqWith(combinedDests, _.isEqual), hasFinal];
+         return [uniqWith(combinedDests, isEqual), hasFinal];
       };
 
       const fillEmptyTransitions = (dfa: FSA) => {
@@ -192,7 +192,7 @@ export default class FSA implements FSAInterface {
          dfa.alphabet.forEach(inputStr => {
             deadState.destinations.push({ input: inputStr, targetId: 'qdead' });
          });
-         dfa.findState('qdead')!.destinations = _.uniqWith(deadState.destinations, _.isEqual);
+         dfa.findState('qdead')!.destinations = uniqWith(deadState.destinations, isEqual);
       };
 
       // if there isn't even a starting state, then DFA is empty; return the same FSA

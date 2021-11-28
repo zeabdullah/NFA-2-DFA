@@ -25,5 +25,6 @@ export default function testStringWithDFA(dfa: FSA, str: string): boolean {
       });
       if (atDeadState) return false;
    }
+   if(currState?.isFinal) accepted = true;
    return accepted;
 }
