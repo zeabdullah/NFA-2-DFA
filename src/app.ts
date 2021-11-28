@@ -1,6 +1,7 @@
 import FSA from './classes/FSA';
 import State from './classes/State';
 
+import testStringWithDFA from './helpers/testStringWithDFA';
 import { renderVizToDOM, vizDfaDrawingContainer, vizNfaDrawingContainer } from './content/viz';
 
 // HTML elements
@@ -92,9 +93,8 @@ function convertButtonHandler(): void {
       return;
    }
 
-   console.log(nfa);
    dfa = nfa.convertToDFA();
-   console.warn(dfa);
+   console.log(dfa);
 
    updateStatesTable(dfa, DfaTableBody, true);
    renderVizToDOM(dfa, vizDfaDrawingContainer);
@@ -129,14 +129,9 @@ function testStringSubmitHandler(): void {
       return;
    }
 
-   for (const char of testStr) {
-      if (!dfa.alphabet.has(char)) {
-         alert('CANNOT TEST STRING. Part of the string does not belong to alphabet');
-         return;
-      }
-   }
-
-   resetTestStrForm();
+   if (testStringWithDFA(dfa, testStr)) {
+      alert('ACCEPTED');
+   } else alert('REJECTED');
 }
 
 function updateStatesTable(
@@ -263,9 +258,6 @@ function resetNewStateForm() {
 }
 function resetAlphabetStrForm() {
    alphabetStrInput.value = '';
-}
-function resetTestStrForm() {
-   testStringInput.value = '';
 }
 
 function preventFormsFromSubmitting(): void {
