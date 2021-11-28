@@ -39,15 +39,13 @@ export default class FSA implements FSAInterface {
       this.alphabet = alphabet;
    }
 
-   // -------- methods ---------
-   //
    addState({ id, isFinal = false, destinations = [] }: State): boolean {
       // if number of states is 1, it means only newState exists; hence, make it starting
       const makeFirstStateStarting = () => {
          if (this.states.size === 1) this.startingStateId = id;
       };
 
-      // check if any of the target destinations are new, so that we add it to the alphabet
+      // check if any of the destinations' input strings are new, so that we add them to the alphabet
       const addNewInputStringsToAlphabet = () => {
          destinations.forEach(currDest => {
             if (!this.alphabet.get(currDest.input)) {
@@ -66,7 +64,7 @@ export default class FSA implements FSAInterface {
       this.states.set(id, newState);
 
       // if new state is final, append it to finalStates array
-      if (isFinal) this.finalStates = this.finalStates.concat(id);
+      if (isFinal) this.finalStates.push(id);
 
       makeFirstStateStarting();
 
@@ -125,21 +123,11 @@ export default class FSA implements FSAInterface {
 
    setStateFinal(stateId: string, newIsFinal: boolean): State | undefined {
       const stateToMutate = this.findState(stateId);
-      return stateToMutate ? stateToMutate.setIsFinal(newIsFinal) : undefined;
-   }
+      if (!stateToMutate) return undefined;
 
-   // unionizeStateDestinations(stateId: string): State {
-   //    // assuming we have all the destinations now,
-   //    const oldState = this.findState(stateId) as State;
-   //    const newState = new State(
-   //       oldState.id,
-   //       oldState.isFinal,
-   //       oldState.unionizeDestinations()
-   //    );
-   //    // replace oldState of same id with newState
-   //    this.states.set(stateId, newState);
-   //    return newState;
-   // }
+      if (newIsFinal) this.finalStates.push(stateId);
+      return stateToMutate.setIsFinal(newIsFinal);
+   }
 
    // converts NFA to DFA
    convertToDFA(): FSA {

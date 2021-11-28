@@ -1,7 +1,7 @@
 import FSA from './classes/FSA';
 import State from './classes/State';
 
-import './content/viz';
+import { renderVizToDOM } from './content/viz';
 
 // HTML elements
 const tableBody = document.querySelector('tbody')!;
@@ -22,9 +22,6 @@ function init() {
    M.Chips.init(chips);
 
    nfa = new FSA();
-   nfa.alphabet.set('b', 'b');
-   nfa.alphabet.set('c', 'c');
-
    updateStatesTable(nfa);
    preventFormsFromSubmitting();
 
@@ -49,6 +46,9 @@ function newStateSubmitHandler() {
    nfa.addState(newState);
 
    updateStatesTable(nfa);
+   console.log(nfa);
+
+   renderVizToDOM(nfa);
    resetNewStateForm();
 }
 
@@ -137,7 +137,7 @@ function updateRowCount(fsa: FSA) {
       <label>
          <input type="radio" class="with-gap" name="starting" ${
             nfa.startingStateId === state.id && 'checked'
-         }>
+         } disabled>
          <span> </span>
       </label>`;
       stateRow.append(radioCell);
@@ -147,7 +147,7 @@ function updateRowCount(fsa: FSA) {
       checkboxCell.className = 'column-isfinal';
       checkboxCell.innerHTML = `
       <label>
-         <input type="checkbox" class="filled-in" ${state.isFinal && 'checked'}>
+         <input type="checkbox" class="filled-in" ${state.isFinal && 'checked'} disabled>
          <span> </span>
       </label>`;
       stateRow.append(checkboxCell);
@@ -187,7 +187,7 @@ function deleteStateRow(stateRow: HTMLTableRowElement) {
    stateRow.remove(); // removes stateRow from the DOM
 }
 function EditStateRow(stateRow: HTMLTableRowElement) {
-   const cellInputs = stateRow.querySelectorAll<HTMLInputElement>('.text-cell');
+   const cellInputs = stateRow.querySelectorAll<HTMLInputElement>('input');
 
    stateRow.classList.add('editing');
 
