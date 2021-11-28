@@ -3,6 +3,10 @@
    border-collapse: collapse;
 }
 
+table input:disabled {
+   cursor: not-allowed;
+}
+
 td i.fa {
    font-size: 1.3rem;
    margin-right: 0.7rem;

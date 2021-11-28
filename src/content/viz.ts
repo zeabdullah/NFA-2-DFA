@@ -12,15 +12,11 @@ export const vizDfaDrawingContainer = document.querySelector(
 
 let viz = new Viz({ Module, render });
 
-// const nfa = new FSA();
-// configFsa(nfa);
-// renderVizToDOM(nfa);
-
 // ========================================
 // FUNCTIONS
 // ========================================
 // configure your nfa changes here
-function configFsa(fsa: FSA) {
+function configFsa(fsa: FSA): void {
    const q1 = new State('q1', false, [{ input: '0', targetId: 'q1' }]);
    fsa.addState(q1);
    fsa.addDestinationToState('q1', { input: '1', targetId: 'q2' });
@@ -36,10 +32,10 @@ function configFsa(fsa: FSA) {
 }
 
 // render given FSA to the DOM using Viz
-export function renderVizToDOM(fsa: FSA) {
+export function renderVizToDOM(fsa: FSA, vizContainer: HTMLDivElement): void {
    viz.renderString(convertFsaToVizString(fsa))
       .then(result => {
-         vizNfaDrawingContainer.innerHTML = result;
+         vizContainer.innerHTML = result;
       })
       .catch(error => {
          // Create a new Viz instance (@see Caveats page for more info)

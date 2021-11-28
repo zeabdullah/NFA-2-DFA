@@ -1,7 +1,7 @@
 import FSA from './classes/FSA';
 import State from './classes/State';
 
-import { renderVizToDOM } from './content/viz';
+import { renderVizToDOM, vizDfaDrawingContainer, vizNfaDrawingContainer } from './content/viz';
 
 // HTML elements
 const tableBody = document.querySelector('tbody')!;
@@ -10,6 +10,9 @@ const newStateInput = document.querySelector('#new-state-input') as HTMLInputEle
 const isFinalCheckbox = document.querySelector('#new-state-checkbox') as HTMLInputElement;
 const alphabetStrForm = document.querySelector('#new-alphabet-str-form') as HTMLFormElement;
 const alphabetStrInput = document.querySelector('#new-alphabet-str-input') as HTMLInputElement;
+const testStringForm = document.querySelector('#test-str-form') as HTMLFormElement;
+const testStringInput = document.querySelector('#test-str-input') as HTMLInputElement;
+const convertButton = document.querySelector('#btn-convert') as HTMLButtonElement;
 
 // Variables
 let nfa: FSA;
@@ -18,19 +21,24 @@ let nfa: FSA;
 init();
 
 function init() {
-   const chips = document.querySelectorAll('.chips');
-   M.Chips.init(chips);
+   initChips();
 
    nfa = new FSA();
    updateStatesTable(nfa);
    preventFormsFromSubmitting();
 
-   tableBody.addEventListener('click', iconClickHandler);
    newStateForm.addEventListener('submit', newStateSubmitHandler);
    alphabetStrForm.addEventListener('submit', newAlphabetStrSubmitHandler);
+   testStringForm.addEventListener('submit', testStringSubmitHandler);
+   tableBody.addEventListener('click', iconClickHandler);
+   convertButton.addEventListener('click', convertButtonHandler);
+}
+function initChips(): void {
+   const chips = document.querySelectorAll('.chips');
+   M.Chips.init(chips);
 }
 
-function iconClickHandler(e: MouseEvent) {
+function iconClickHandler(e: MouseEvent): void {
    const target = e.target as HTMLElement;
 
    if (target.matches('i.delete'))
@@ -41,25 +49,48 @@ function iconClickHandler(e: MouseEvent) {
       saveStateRowChanges(target.parentElement!.parentElement as HTMLTableRowElement);
 }
 
-function newStateSubmitHandler() {
+function convertButtonHandler(): void {
+   if (!nfa.startingStateId) {
+      alert('Cannot convert. NFA is null');
+      console.warn('Cannot convert. NFA is null');
+      return;
+   }
+
+   const dfa = nfa.convertToDFA();
+
+   updateStatesTable(dfa);
+   renderVizToDOM(dfa, vizDfaDrawingContainer);
+}
+
+function newStateSubmitHandler(): void {
    const newState = new State(newStateInput.value, isFinalCheckbox.checked);
    nfa.addState(newState);
 
    updateStatesTable(nfa);
-   console.log(nfa);
+   initChips();
+   // console.log(nfa);
 
-   renderVizToDOM(nfa);
+   renderVizToDOM(nfa, vizNfaDrawingContainer);
    resetNewStateForm();
 }
 
-function newAlphabetStrSubmitHandler() {
+function newAlphabetStrSubmitHandler(): void {
    nfa.alphabet.set(alphabetStrInput.value, alphabetStrInput.value);
 
    updateStatesTable(nfa);
+   initChips();
+
+   renderVizToDOM(nfa, vizNfaDrawingContainer);
    resetAlphabetStrForm();
 }
 
-function updateStatesTable(fsa: FSA) {
+function testStringSubmitHandler(): void {
+   //
+
+   resetTestStrForm();
+}
+
+function updateStatesTable(fsa: FSA): void {
    // 1. update column count based on alphabet size
    updateColumnCount(fsa);
    // 2. have a row for each state in the nfa
@@ -67,7 +98,7 @@ function updateStatesTable(fsa: FSA) {
 }
 
 // update column count based on alphabet size
-function updateColumnCount(fsa: FSA) {
+function updateColumnCount(fsa: FSA): void {
    const stateStartingColumn =
       document.querySelector<HTMLTableCellElement>('.th-state-starting')!;
 
@@ -97,7 +128,7 @@ function updateColumnCount(fsa: FSA) {
    }
 }
 
-function updateRowCount(fsa: FSA) {
+function updateRowCount(fsa: FSA): void {
    // select {tbody}, the container of all state rows and initialize it
    tableBody.innerHTML = '';
 
@@ -173,21 +204,25 @@ function resetNewStateForm() {
 function resetAlphabetStrForm() {
    alphabetStrInput.value = '';
 }
+function resetTestStrForm() {
+   testStringInput.value = '';
+}
 
-function preventFormsFromSubmitting() {
+function preventFormsFromSubmitting(): void {
    document
       .querySelectorAll('form')
       .forEach(formEl => formEl.addEventListener('submit', e => e.preventDefault()));
 }
 
 function deleteStateRow(stateRow: HTMLTableRowElement) {
-   const idInput = stateRow.querySelector<HTMLInputElement>('.column-id input');
+   const idInput = stateRow.querySelector('.column-id input') as HTMLInputElement;
 
    nfa.removeState(idInput!.value);
+   renderVizToDOM(nfa, vizNfaDrawingContainer);
    stateRow.remove(); // removes stateRow from the DOM
 }
-function EditStateRow(stateRow: HTMLTableRowElement) {
-   const cellInputs = stateRow.querySelectorAll<HTMLInputElement>('input');
+function EditStateRow(stateRow: HTMLTableRowElement): void {
+   const cellInputs = stateRow.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
 
    stateRow.classList.add('editing');
 
@@ -195,7 +230,7 @@ function EditStateRow(stateRow: HTMLTableRowElement) {
 }
 
 function saveStateRowChanges(stateRow: HTMLTableRowElement) {
-   const cellInputs = stateRow.querySelectorAll<HTMLInputElement>('.text-cell');
+   const cellInputs = stateRow.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
 
    stateRow.classList.remove('editing');
    cellInputs.forEach(cell => cell.setAttribute('disabled', 'true'));
