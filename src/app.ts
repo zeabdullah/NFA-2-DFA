@@ -1,6 +1,8 @@
 import FSA from './classes/FSA';
 import State from './classes/State';
 
+import './content/viz';
+
 // HTML elements
 const tableBody = document.querySelector('tbody')!;
 const newStateForm = document.querySelector('#new-state-form') as HTMLFormElement;
@@ -18,6 +20,7 @@ init();
 function init() {
    const chips = document.querySelectorAll('.chips');
    M.Chips.init(chips);
+
    nfa = new FSA();
    nfa.alphabet.set('b', 'b');
    nfa.alphabet.set('c', 'c');

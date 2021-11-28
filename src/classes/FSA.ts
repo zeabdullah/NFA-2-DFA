@@ -19,7 +19,6 @@ interface FSAInterface {
    setStateFinal(stateId: string, newIsFinal: boolean): State | undefined;
 
    convertToDFA(): FSA;
-   // unionizeStateDestinations(stateId: string): State;
 }
 
 export default class FSA implements FSAInterface {
