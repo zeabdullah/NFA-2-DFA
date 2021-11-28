@@ -2,6 +2,8 @@
 Web application to convert NFAs to DFAs
 
 
+View live on [Netlify](https://az-mh-nfa2dfa.netlify.app/)
+
 ## Getting Started
 
 To start working on this project, open a terminal inside the root folder. Then:
