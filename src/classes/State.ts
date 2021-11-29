@@ -1,13 +1,28 @@
+import unionize from '../helpers/unionize';
+
 export interface Destination {
    input: string;
-   id: string;
+   targetId: string;
 }
 
-export default class State {
+interface StateInterface {
+   id: string;
+   isFinal: boolean;
+   destinations: Destination[];
+
+   renameId(newId: string): State;
+   setIsFinal(val: boolean): State;
+
+   addDestination(newDestination: Destination): boolean;
+   removeDestination(destinationToRemove: Destination): void;
+   unionizeDestinations(): Destination[];
+}
+
+export default class State implements StateInterface {
    // Properties
    id: string;
    isFinal: boolean;
-   destinations: Destination[] | [];
+   destinations: Destination[];
 
    // Constructor(s)
    constructor(id: string, isFinal = false, destinations: Destination[] = []) {
@@ -15,42 +30,48 @@ export default class State {
       this.isFinal = isFinal;
       this.destinations = [];
 
-      destinations.forEach(destination => {
-         this.addDestination(destination);
-      });
+      // Using addDestination() for error handling
+      destinations.forEach(dest => this.addDestination(dest));
    }
 
    // Methods
-   setIsFinal(newIsFinal: boolean) {
+   renameId(newId: string): State {
+      this.id = newId;
+      return this;
+   }
+
+   setIsFinal(newIsFinal: boolean): State {
       this.isFinal = newIsFinal;
+      return this;
    }
 
    // add a destination to state node
    addDestination(newDestination: Destination): boolean {
-      const { input, id } = newDestination;
-
-      const alreadyExists = this.destinations.find(
-         currDestination => currDestination.input === input && currDestination.id === id
-      );
-
-      // If destination already exists, exit...
-      if (alreadyExists) {
-         alert(
-            `Duplicate destination [${input}, ${id}] found. new destination NOT added.`
-         );
+      if (!newDestination.input) {
+         console.warn(`invalid input string. new destination NOT added`);
+         return false;
+      }
+      if (!newDestination.targetId) {
+         console.warn(`invalid target id. new destination NOT added`);
          return false;
       }
 
-      this.destinations = [...this.destinations, newDestination];
+      this.destinations = this.destinations.concat(newDestination);
       return true;
    }
 
    // remove destination from state node
-   removeDestination(destinationToRemove: Destination) {
-      const { input, id } = destinationToRemove;
+   removeDestination(destinationToRemove: Destination): void {
+      const { input, targetId } = destinationToRemove;
 
       this.destinations = this.destinations.filter(
-         currDestination => currDestination.input !== input || currDestination.id !== id
+         currDestination =>
+            currDestination.input !== input || currDestination.targetId !== targetId
       );
+   }
+
+   unionizeDestinations(): Destination[] {
+      let newDestinations = unionize(this.destinations);
+      return newDestinations;
    }
 }

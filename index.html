@@ -2,52 +2,189 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite App</title>
+   <meta charset="UTF-8" />
+   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>NFA to DFA Converter</title>
+
+   <!-- Compiled and minified CSS -->
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+      integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+
+
+   <!-- Compiled and minified JavaScript -->
 </head>
 
 <body>
-  <div id="app">
-    <h1>Hello world!</h1>
+   <div id="app">
+      <main class="container">
+         <h1>NFA to DFA Converter 🔁</h1>
 
-    <canvas id="canvas" width="1100" height="700"></canvas>
+         <!-- <canvas id="canvas" width="700" height="500"></canvas> -->
+         <h4>NFA Drawing:</h4>
+         <div class="viz nfa-drawing"></div>
 
-    <form id="new-state-form">
-      <div>
-        <label for="state-id">
-          New State Name:
-          <input type="text" id="new-state-input" value="" required>
-        </label>
-        <input type="submit" value="New State" class="new-state">
-      </div>
-    </form>
+         <div class="row form-container">
+            <form id="new-state-form" class="col s6">
+               <div class="">
+                  <div class="input-field new-state">
+                     <input type="text" class="validate" id="new-state-input" value="" required>
+                     <label for="new-state-input">State Name</label>
+                  </div>
+                  <p>
+                     <label>
+                        <input type="checkbox" id="new-state-checkbox" class="filled-in">
+                        <span>Is Final?</span>
+                     </label>
+                  </p>
+               </div>
+               <div>
+                  <button type="submit" class="waves-effect waves-light btn purple darken-1">New State</button>
+               </div>
+            </form>
 
-    <form id="states-form">
-      <table class="nfa-table">
-        <thead class="thead">
-          <th>ID</th>
-          <th>0</th>
-          <th>1</th>
-          <th>Is Final</th>
-          <th>Starting State</th>
-        </thead>
-        <tbody class="all-states">
-          <!-- <tr class="state-row">
-            <td class="state-id">state.id</td>
-            <td class="state-transition">q1</td>
-            <td class="state-transition">q2</td>
-            <td class="state-is-final"><input type="checkbox" checked /></td>
-            <td class="state-is-starting"><input type="radio" name="is-starting" /></td>
-          </tr> -->
-        </tbody>
-      </table>
-    </form>
+            <form id="new-alphabet-str-form" class="col s6">
+               <div class="">
+                  <div class="input-field new-alphabet-str">
+                     <input type="text" class="validate" id="new-alphabet-str-input" value="" required>
+                     <label for="new-alphabet-str-input">Alphabet String</label>
+                  </div>
+               </div>
 
-  </div>
+               <div>
+                  <button type="submit" class="waves-effect btn-small teal">New Alphabet String</button>
+               </div>
+            </form>
+         </div>
 
-  <script type="module" src="/src/main.ts"></script>
+
+         <section>
+            <form>
+               <table id="nfa-table">
+                  <thead>
+                     <tr>
+                        <th class="th-state-id">State ID</th>
+                        <th class="th-state-starting">Starting</th>
+                        <th class="th-state-final">Final</th>
+                        <th>Edits</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <!-- Example state row; this gets removed by my scripts on load -->
+                     <tr class="data-row">
+                        <td class="cell-text">
+                           <div>
+                              <input class="input">
+                           </div>
+                        </td>
+                        <td class="cell-text">
+                           <div class="chips">
+                              <input class="input">
+                           </div>
+                        </td>
+                        <td class="cell-text">
+                           <div class="chips">
+                              <input class="input">
+                           </div>
+                        </td>
+                        <td class="column-starting">
+                           <label>
+                              <input type="radio" class="with-gap" name="starting">
+                              <span>yes</span>
+                           </label>
+                        </td>
+                        <td class="column-isfinal">
+                           <label>
+                              <input type="checkbox" class="filled-in" checked="checked">
+                              <span>yes</span>
+                           </label>
+                        </td>
+                        <td>
+                           <i href="#" class="fa fa-check save green-text"> </i><i href="#"
+                              class="fa fa-times delete red-text"></i> <i href="#" class="fa fa-edit edit"></i>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </form>
+         </section>
+
+         <button type="button" id="btn-convert"
+            class="waves-effect waves-light btn-large purple lighten-3 black-text">CONVERT TO
+            DFA</button>
+
+
+         <h5>Test String with DFA</h5>
+         <form id="test-str-form" class="col s6">
+            <div class="">
+               <div class="input-field new-alphabet-str">
+                  <input type="text" class="validate" id="test-str-input" value="" required>
+                  <label for="test-str-input">DFA Test String</label>
+               </div>
+            </div>
+
+            <div>
+               <button type="submit" class="waves-effect btn-small teal">Test String</button>
+            </div>
+         </form>
+
+         <h4>DFA Drawing</h4>
+         <div class="viz dfa-drawing"></div>
+         <form>
+            <table id="dfa-table">
+               <thead>
+                  <tr>
+                     <th class="th-state-id">State ID</th>
+                     <th class="th-state-starting">Starting</th>
+                     <th class="th-state-final">Final</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <!-- Example state row; this gets removed by my scripts on load -->
+                  <tr class="data-row">
+                     <td class="cell-text">
+                        <!-- <div>
+                           <input class="input">
+                        </div> -->
+                     </td>
+                     <td class="cell-text">
+                        <!-- <div class="chips">
+                           <input class="input">
+                        </div> -->
+                     </td>
+                     <td class="cell-text">
+                        <!-- <div class="chips">
+                           <input class="input">
+                        </div> -->
+                     </td>
+                     <td class="column-starting">
+                        <label>
+                           <input type="radio" class="with-gap" name="starting" disabled>
+                           <span> </span>
+                        </label>
+                     </td>
+                     <td class="column-isfinal">
+                        <!-- <label>
+                           <input type="checkbox" class="filled-in" checked="checked" disabled>
+                           <span>yes</span>
+                        </label> -->
+                     </td>
+                     <td>
+                        <i href="#" class="fa fa-check save green-text"> </i><i href="#"
+                           class="fa fa-times delete red-text"></i>
+                        <i href="#" class="fa fa-edit edit"></i>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </form>
+
+      </main>
+   </div>
+
+   <script type="module" src="/src/index.ts" defer></script>
 </body>
 
 </html>
